@@ -37,7 +37,29 @@ fill_missing = function(vector) {
   return(vector)
 }
 
+```
+
+
+#### Apply to dataset using map
+
+```{r}
+
 iris_with_missing = map_df(iris_with_missing, fill_missing)
 iris_with_missing
+
+```
+
+
+## Problem 2
+
+```{r}
+
+study = data.frame(file_name = list.files("./data"))
+
+get_data = function(file_name) {
+  path = paste("./data/", file_name, sep = "")
+  my_data = read_csv(path)
+  return(my_data)
+}
 
 ```
