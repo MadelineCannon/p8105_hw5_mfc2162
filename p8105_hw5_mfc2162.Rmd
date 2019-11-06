@@ -64,6 +64,16 @@ get_data = function(file_name) {
   study = rbind(study, row)
 }
 
-study = map_dfr(files, get_data)
+wide = map_dfr(files, get_data)
+
+study = wide %>%
+  pivot_longer(week_1:week_8,
+               names_to = "week",
+               names_prefix = "week_",
+               values_to = "observation") %>%
+  mutate(id = substr(file_name, start = 5, stop = 6),
+         arm = substr(file_name, start = 1, stop = 3),
+         week = as.numeric(week)) %>%
+  select(id, arm, week, observation)
 
 ```
