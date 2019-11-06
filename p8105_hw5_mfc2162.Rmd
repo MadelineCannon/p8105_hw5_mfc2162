@@ -54,13 +54,20 @@ iris_with_missing
 
 ```{r}
 
-files = data.frame(file_name = list.files("./data"))
+files = list.files("./data")
 
-get_data = function(file_name) {
+study = data.frame()
+
+get_data = function(file_name, study) {
   path = paste("./data/", file_name, sep = "")
   subject_data = read_csv(path)
   row = cbind(file_name, subject_data)
-  return(row)
+  study = rbind(study, row)
+  return(study)
+}
+
+for (file in files) {
+  study = get_data(file, study)
 }
 
 ```
