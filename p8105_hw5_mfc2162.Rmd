@@ -55,19 +55,15 @@ iris_with_missing
 ```{r}
 
 files = list.files("./data")
-
 study = data.frame()
 
-get_data = function(file_name, study) {
+get_data = function(file_name) {
   path = paste("./data/", file_name, sep = "")
   subject_data = read_csv(path)
   row = cbind(file_name, subject_data)
   study = rbind(study, row)
-  return(study)
 }
 
-for (file in files) {
-  study = get_data(file, study)
-}
+study = map_dfr(files, get_data)
 
 ```
