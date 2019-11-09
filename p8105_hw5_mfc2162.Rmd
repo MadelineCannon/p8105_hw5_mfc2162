@@ -112,6 +112,8 @@ In the control group, the observations do not appear to change with time. In the
 
 ## Problem 3
 
+#### Generate datasets
+
 ```{r}
 
 set.seed(1)
@@ -124,10 +126,10 @@ sim_regression = function(n = 30, beta0 = 2, beta1) {
   )
   
   ls_fit = lm(y ~ x, data = sim_data)
-  results = ls_fit %>% broom::tidy()
+  results = ls_fit %>% broom::tidy() %>% filter(term == "x")
   
   tibble(
-    beta1_hat = coef(ls_fit)[2],
+    b1_hat = coef(ls_fit)[2],
     p_value = pull(results, p.value)
   )
 }
@@ -142,3 +144,26 @@ sim_results =
   unnest(estimate_dfs)
 
 ```
+
+
+#### Plot showing proportion of times the null was rejected
+
+```{r}
+
+sim_results = sim_results %>% mutate(reject_null = 0)
+
+for (row in 1:nrow(sim_results)) {
+  if (sim_results[row, "p_value"] < 0.05) {
+    sim_results[row, "reject_null"] = 1
+  }
+}
+
+power_plot = sim_results %>% mutate(b1 = as.factor(b1)) %>% group_by(b1) %>%
+  summarize(proportion = sum(reject_null) / n())
+
+ggplot(power_plot, aes(x=b1, y=proportion, fill=b1)) + geom_bar(stat="identity") +
+  xlab("Beta 1") + ylab("Proportion") + theme(legend.position = "none")
+
+```
+
+As effect size increases, the power increases.
