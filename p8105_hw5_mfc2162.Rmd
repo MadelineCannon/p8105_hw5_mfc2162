@@ -141,9 +141,8 @@ sim_results =
     output_lists = map(.x = b1, ~rerun(10000, sim_regression(beta1 = .x))),
     estimate_dfs = map(output_lists, bind_rows)) %>% 
   select(-output_lists) %>% 
-  unnest(estimate_dfs)
-
-sim_results = sim_results %>% mutate(b1 = as.factor(b1))
+  unnest(estimate_dfs) %>%
+  mutate(b1 = as.factor(b1))
 
 ```
 
@@ -179,6 +178,25 @@ estimator_plot = sim_results %>% group_by(b1) %>%
   summarize(avg_est = mean(b1_hat))
 
 ggplot(estimator_plot, aes(x=b1, y=avg_est, fill=b1)) + geom_bar(stat="identity") +
-  xlab("True Beta 1") + ylab("Estimated Beta 1") + theme(legend.position = "none")
+  xlab("True Beta1") + ylab("Estimated Beta1") + theme(legend.position = "none") +
+  ylim(-1, 21)
 
 ```
+
+
+#### Average estimator among samples where null was rejected
+
+```{r}
+
+estimator_plot2 = sim_results %>% filter(reject_null == 1) %>% group_by(b1) %>%
+  summarize(avg_est = mean(b1_hat))
+
+ggplot(estimator_plot2, aes(x=b1, y=avg_est, fill=b1)) + geom_bar(stat="identity") +
+  xlab("True Beta1") + ylab("Estimated Beta1") + theme(legend.position = "none") +
+  ylim(-1, 21)
+
+```
+
+The sample averages of beta1 across all tests are approximately equal to the true values. However, when you filter to include only samples in which the null was rejected, the average estimate of beta1 is much higher than the true value (except when beta1 = 0). This is because you reject the null when beta is significantly different from zero, so the samples where the null is rejected will be the ones where the estimate is further from zero.
+
+The estimates will be normally distributed around the true value, so when beta1 = 0, the number of estimates that are positive and the number of estimates that are negative will be approximately equal. Even though the samples in which the null was rejected will have estimates that are further from zero, the average will balance out to be close to zero.
